@@ -6,10 +6,11 @@ import axios from "axios";
 function DecryptComponent() {
   const [file, setFile] = useState(null);
   const [key, setKey] = useState("");
-  const [decryptedImage, setDecryptedImage] = useState("");
+  const [decryptedImage, setDecryptedImage] = useState<string | null>(null);
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
+    setDecryptedImage(null);
   };
 
   const handleKeyChange = (e) => {
@@ -30,12 +31,16 @@ function DecryptComponent() {
             headers: {
               "Content-Type": "multipart/form-data",
             },
+            responseType: "blob",
           }
         );
 
+        // Create a blob URL for the decrypted image
+        const blob = new Blob([response.data], { type: "image/jpg" });
+        const url = URL.createObjectURL(blob);
+
         // Set the decrypted image URL received from the server
-        setDecryptedImage(response.data.image);
-        console.log(decryptedImage);
+        setDecryptedImage(url);
       } catch (error) {
         console.error(error);
       }

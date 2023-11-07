@@ -1,6 +1,6 @@
 from datetime import datetime
 import random
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 import os
 from flask_cors import CORS
 
@@ -22,7 +22,7 @@ def encryptionRoute():
         file = request.files["file"]
         if file and allowed_file(file.filename):
             # Generate a unique filename for the encrypted image
-            unique_filename = str(uuid.uuid4()) + '.jpeg'
+            unique_filename = str(uuid.uuid4()) + '.jpg'
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], unique_filename))
             key, image = encrypt((os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)))
 
@@ -51,7 +51,8 @@ def decryptionRoute():
             'name': unique_filename,  # Use the unique filename
             'image': image
         }
-        return jsonify(response_data)
+        return send_file(image, as_attachment=True)
+
 
 
 def allowed_file(filename):
@@ -66,8 +67,8 @@ def encrypt(file):
     key = random.randint(0,256)
     for index, value in enumerate(image):
         image[index] = value^key
-    fo = open("enc.jpeg", "wb")
-    imageRes="enc.jpeg"
+    fo = open("enc.jpg", "wb")
+    imageRes="enc.jpg"
     fo.write(image)
     fo.close()
     return (key,imageRes)
